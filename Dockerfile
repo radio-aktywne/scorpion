@@ -46,7 +46,7 @@ COPY src/ src/
 
 # Setup main entrypoint
 COPY scripts/entrypoint.sh scripts/entrypoint.sh
-ENTRYPOINT ["/service/scripts/entrypoint.sh", "echo", "Hello, world!"]
+ENTRYPOINT ["/service/scripts/entrypoint.sh", "./src/start.sh"]
 CMD []
 
 # Setup ownership
