@@ -34,7 +34,7 @@ serve:
   # Control cookies settings.
   cookies:
     # Specify the SameSite mode that cookies should be sent with.
-    same_site_mode: Strict
+    same_site_mode: Lax
     {{- if ( ds "config" ).cookies.domain }}
 
     # HTTP Cookie Domain
