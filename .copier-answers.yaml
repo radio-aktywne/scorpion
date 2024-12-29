@@ -2,7 +2,7 @@
 _commit: 0.1.0
 _src_path: gh:radio-aktywne/template-service-generic
 accountname: radio-aktywne
-description: OIDC auth 🪪
+description: Users OIDC auth 🪪
 docs: true
 docsurl: https://radio-aktywne.github.io/scorpion
 envprefix: SCORPION
