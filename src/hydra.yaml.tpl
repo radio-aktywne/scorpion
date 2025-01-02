@@ -31,7 +31,7 @@ serve:
     # The interface or unix socket Ory Hydra should listen and handle administrative API requests on. Use the prefix `unix:` to specify a path to a unix socket. Leave empty to listen on all interfaces.
     host: {{ ( ds "config" ).server.host | strings.Quote }}
 
-  # Control cookies settings.
+  # Controls cookies settings.
   cookies:
     # Specify the SameSite mode that cookies should be sent with.
     same_site_mode: Lax
@@ -110,6 +110,13 @@ urls:
 oauth2:
   # Set this to true if you want to share error debugging information with your OAuth 2.0 clients. Keep in mind that debug information is very valuable when dealing with errors, but might also expose database error codes and similar errors.
   expose_internal_errors: true
+
+  # Controls grants settings.
+  grant:
+    # Controls refresh token settings.
+    refresh_token:
+      # Configures how long a Refresh Token remains valid after it has been used. The maximum value is 5 minutes.
+      rotation_grace_period: 1m
 
 # The secrets section configures secrets used for encryption and signing of several systems. All secrets can be rotated, for more information on this topic go to: https://www.ory.sh/docs/hydra/advanced#rotation-of-hmac-token-signing-and-database-and-cookie-encryption-keys
 secrets:
