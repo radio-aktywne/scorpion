@@ -35,12 +35,6 @@ serve:
   cookies:
     # Specify the SameSite mode that cookies should be sent with.
     same_site_mode: Lax
-    {{- if ( ds "config" ).cookies.domain }}
-
-    # HTTP Cookie Domain
-    # Sets the cookie domain for session and CSRF cookies. Useful when dealing with subdomains. Use with care!
-    domain: {{ ( ds "config" ).cookies.domain | strings.Quote }}
-    {{- end }}
 
     # Cookie Names
     # Sets the session cookie name. Use with care!

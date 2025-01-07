@@ -11,11 +11,6 @@ server:
     # Port for admin traffic
     admin: {{ env.Getenv "SCORPION__SERVER__PORTS__ADMIN" "20001" | conv.ToInt }}
 
-# Configuration for the cookies
-cookies:
-  # Domain for the cookies
-  domain: {{ env.Getenv "SCORPION__COOKIES__DOMAIN" | strings.Quote | strings.TrimPrefix `""` | default "null" }}
-
 # Configuration for the URLs
 urls:
   # Issuer URL

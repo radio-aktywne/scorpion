@@ -16,9 +16,6 @@ You can configure the service at runtime using various environment variables:
 - `SCORPION__SERVER__PORTS__ADMIN` -
   port for admin traffic
   (default: `20001`)
-- `SCORPION__COOKIES__DOMAIN` -
-  domain for the cookies
-  (default: ``)
 - `SCORPION__URLS__ISSUER` -
   issuer URL
   (default: `http://localhost:20000`)
