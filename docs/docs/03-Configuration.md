@@ -52,6 +52,48 @@ You can configure the service at runtime using various environment variables:
 - `SCORPION__DIAMOND__SQL__PASSWORD` -
   password to authenticate with the SQL API of the diamond database
   (default: `password`)
+- `SCORPION__CLIENTS__ASTER__SECRET` -
+  secret of the aster client
+  (default: `secret`)
+- `SCORPION__CLIENTS__ASTER__URL` -
+  public URL of the aster app
+  (default: `http://localhost:10110`)
+- `SCORPION__CLIENTS__DAISY__SECRET` -
+  secret of the daisy client
+  (default: `secret`)
+- `SCORPION__CLIENTS__DAISY__URL` -
+  public URL of the daisy app
+  (default: `http://localhost:10810`)
+- `SCORPION__CLIENTS__JASMINE__SECRET` -
+  secret of the jasmine client
+  (default: `secret`)
+- `SCORPION__CLIENTS__JASMINE__URL` -
+  public URL of the jasmine app
+  (default: `http://localhost:10620`)
+- `SCORPION__CLIENTS__LOTUS__SECRET`
+  secret of the lotus client
+  (default: `secret`)
+- `SCORPION__CLIENTS__LOTUS__URL` -
+  public URL of the lotus app
+  (default: `http://localhost:10230`)
+- `SCORPION__CLIENTS__MAGNOLIA__SECRET` -
+  secret of the magnolia client
+  (default: `secret`)
+- `SCORPION__CLIENTS__MAGNOLIA__URL` -
+  public URL of the magnolia app
+  (default: `http://localhost:10720`)
+- `SCORPION__CLIENTS__POPPY__SECRET` -
+  secret of the poppy client
+  (default: `secret`)
+- `SCORPION__CLIENTS__POPPY__URL` -
+  public URL of the poppy app
+  (default: `http://localhost:10410`)
+- `SCORPION__CLIENTS__TULIP__SECRET` -
+  secret of the tulip client
+  (default: `secret`)
+- `SCORPION__CLIENTS__TULIP__URL` -
+  public URL of the tulip app
+  (default: `http://localhost:10530`)
 - `SCORPION__DEBUG` -
   enable debug mode
   (default: `true`)
