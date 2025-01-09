@@ -36,6 +36,7 @@
         ...
       }: let
         node = pkgs.nodejs;
+        python = pkgs.python311;
         nil = pkgs.nil;
         task = pkgs.go-task;
         coreutils = pkgs.coreutils;
@@ -72,6 +73,7 @@
 
             packages = [
               node
+              python
               nil
               task
               coreutils
@@ -92,6 +94,7 @@
             name = "runtime";
 
             packages = [
+              python
               hydra
               gomplate
               yq

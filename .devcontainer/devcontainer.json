@@ -1,4 +1,15 @@
 {
+  // Tool-specific settings
+  "customizations": {
+    // VS Code settings
+    "vscode": {
+      // Extensions to install
+      "extensions": [
+        // Python
+        "ms-python.python"
+      ]
+    }
+  },
   // Use latest pre-built image
   "image": "ghcr.io/radio-aktywne/devcontainers/service-generic:latest",
   // Run arguments

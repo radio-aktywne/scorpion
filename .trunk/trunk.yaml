@@ -12,7 +12,7 @@ runtimes:
     - go@1.22.1
     # Needed for eslint, markdownlint, prettier, svgo
     - node@21.7.1
-    # Needed for yamllint
+    # Needed for black, ruff, yamllint
     - python@3.11.6
 lint:
   ignore:
@@ -58,6 +58,8 @@ lint:
   enabled:
     # GitHub Actions linting
     - actionlint@1.6.27
+    # Python formatting
+    - black@24.4.2
     # JavaScript linting
     - eslint@8.57.0
     # Check for whitespace errors
@@ -74,6 +76,8 @@ lint:
     - nix-flake-check@SYSTEM
     # JS, JSON, YAML, Markdown formatting
     - prettier@3.0.2
+    # Python linting
+    - ruff@0.5.5
     # Shell linting
     - shellcheck@0.10.0
     # Shell formatting
