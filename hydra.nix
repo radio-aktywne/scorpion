@@ -4,10 +4,8 @@
   buildGoModule,
 }: let
   pname = "hydra";
-  # We need graceful refresh token revocation feature
-  # It has not been released yet, so we build from master
-  revision = "3a09db2";
-  version = "3a09db2";
+  revision = "v2.3.0";
+  version = "2.3.0";
 in
   buildGoModule {
     inherit pname version;
@@ -16,10 +14,10 @@ in
       owner = "ory";
       repo = "hydra";
       rev = "${revision}";
-      hash = "sha256-3IYh7mo3bVWVSDRy1+fgSSa7qZqzb1apEXC4xm+7SP4=";
+      hash = "sha256-f/pBRrFMfpcYSfejIGpCD5Kywtg5oyovw5RemvRDPTs=";
     };
 
-    vendorHash = "sha256-qYloklVOnJQsuadA570JEfhHSwtnGXao40t51RS/m2o=";
+    vendorHash = "sha256-g2NDPwLgM/LmndCgh5pXjc1DJ3pnGcHlWm+opPVK1bE=";
 
     # Specify subpackages explicitly
     subPackages = [
