@@ -2,7 +2,7 @@
 {{- $host := ( ds "config" ).diamond.sql.host -}}
 {{- $port := ( ds "config" ).diamond.sql.port -}}
 {{- $password := ( ds "config" ).diamond.sql.password -}}
-cockroach://user:{{ print $password }}@{{ print $host }}:{{ print $port }}/database
+postgres://user:{{ print $password }}@{{ print $host }}:{{ print $port }}/database
 {{- end -}}
 
 {{- define "crocus.public.url" -}}
