@@ -510,8 +510,8 @@ class ClientSynchronizer:
     def _delete_client(self, id: str) -> None:
         try:
             self.hydra.delete_client(id)
-        except HTTPError as error:
-            if error.status == HTTPStatus.NOT_FOUND:
+        except (ConnectionError, HTTPError) as error:
+            if isinstance(error, HTTPError) and error.status == HTTPStatus.NOT_FOUND:
                 return
 
             logger.exception(f"Failed to delete client {id}.")
@@ -523,8 +523,8 @@ class ClientSynchronizer:
 
         try:
             self.hydra.update_client(id, request)
-        except HTTPError as error:
-            if error.status == HTTPStatus.NOT_FOUND:
+        except (ConnectionError, HTTPError) as error:
+            if isinstance(error, HTTPError) and error.status == HTTPStatus.NOT_FOUND:
                 self._create_client(id)
                 return
 
@@ -537,8 +537,8 @@ class ClientSynchronizer:
 
         try:
             self.hydra.create_client(request)
-        except HTTPError as error:
-            if error.status == HTTPStatus.CONFLICT:
+        except (ConnectionError, HTTPError) as error:
+            if isinstance(error, HTTPError) and error.status == HTTPStatus.CONFLICT:
                 self._update_client(id)
                 return
 
@@ -578,14 +578,12 @@ class ConfigurationSynchronizer:
         self.config = config
 
     def _wait_for_hydra(self) -> None:
-        timeout = 30
-
-        logger.info(f"Waiting up to {timeout} seconds for Ory Hydra to become ready...")
+        logger.info("Waiting for Ory Hydra to become ready...")
 
         for _ in range(10):
             try:
                 self.hydra.ping()
-            except HTTPError:
+            except (ConnectionError, HTTPError):
                 logger.info("Ory Hydra is not ready. Retrying in 1 second...")
                 time.sleep(1)
             else:
@@ -593,7 +591,7 @@ class ConfigurationSynchronizer:
                 time.sleep(5)
                 return
 
-        logger.error("Ory Hydra did not become ready within the timeout.")
+        logger.error("Ory Hydra did not become ready.")
         raise SynchronizationError()
 
     def synchronize(self) -> None:
