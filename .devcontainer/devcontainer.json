@@ -1,30 +1,19 @@
 {
-  // Tool-specific settings
   "customizations": {
-    // VS Code settings
     "vscode": {
-      // Extensions to install
-      "extensions": [
-        // Python
-        "ms-python.python"
-      ]
+      "extensions": ["ms-python.python", "tamasfe.even-better-toml"],
+      "settings": {
+        "python.analysis.nodeExecutable": "auto"
+      }
     }
   },
-  // Use latest pre-built image
   "image": "ghcr.io/radio-aktywne/devcontainers/service-generic:latest",
-  // Run arguments
   "runArgs": [
-    // Use host UTS namespace
     "--uts=host",
-    // Use host IPC
     "--ipc=host",
-    // Use host network
     "--network=host",
-    // Use host user namespace
     "--userns=host",
-    // Use host cgroup namespace
     "--cgroupns=host",
-    // Run with elevated privileges
     "--privileged"
   ]
 }

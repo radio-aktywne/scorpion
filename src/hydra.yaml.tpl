@@ -127,5 +127,4 @@ secrets:
     {{- end }}
 
 # The Hydra version this config is written for.
-# SemVer according to https://semver.org/ prefixed with `v` as in our releases.
 version: v2.3.0

@@ -1,10 +1,9 @@
-# See: https://github.com/NixOS/nixpkgs/blob/32e940c7c420600ef0d1ef396dc63b04ee9cad37/pkgs/applications/misc/kratos/default.nix
+# See: https://github.com/NixOS/nixpkgs/blob/40ee5e1944bebdd128f9fbada44faefddfde29bd/pkgs/by-name/kr/kratos/package.nix
 {
   fetchFromGitHub,
   buildGoModule,
 }: let
   pname = "hydra";
-  revision = "v2.3.0";
   version = "2.3.0";
 in
   buildGoModule {
@@ -13,7 +12,7 @@ in
     src = fetchFromGitHub {
       owner = "ory";
       repo = "hydra";
-      rev = "${revision}";
+      rev = "v${version}";
       hash = "sha256-f/pBRrFMfpcYSfejIGpCD5Kywtg5oyovw5RemvRDPTs=";
     };
 

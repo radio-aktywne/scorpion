@@ -1,8 +1,8 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 0.2.0
+_commit: 0.3.0
 _src_path: gh:radio-aktywne/template-service-generic
 accountname: radio-aktywne
-description: Users OIDC auth 🪪
+description: Users OIDC auth service 🪪
 docs: true
 docsurl: https://radio-aktywne.github.io/scorpion
 envprefix: SCORPION
