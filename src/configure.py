@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from http import HTTPStatus
 from http.client import HTTPConnection, HTTPResponse, HTTPSConnection
 from pathlib import Path
+from types import TracebackType
 from typing import Self
 from urllib.parse import urlparse
 
@@ -31,7 +32,6 @@ class TokenEndpointConfig:
     @classmethod
     def deserialize(cls, data: dict) -> Self:
         """Deserialize from a dictionary."""
-
         return cls(
             auth=data.get("auth"),
         )
@@ -46,7 +46,6 @@ class EndpointsConfig:
     @classmethod
     def deserialize(cls, data: dict) -> Self:
         """Deserialize from a dictionary."""
-
         return cls(
             token=(
                 TokenEndpointConfig.deserialize(data["token"])
@@ -66,7 +65,6 @@ class FrontChannelLogoutConfig:
     @classmethod
     def deserialize(cls, data: dict) -> Self:
         """Deserialize from a dictionary."""
-
         return cls(
             path=data["path"],
             session=data.get("session"),
@@ -83,7 +81,6 @@ class LogoutConfig:
     @classmethod
     def deserialize(cls, data: dict) -> Self:
         """Deserialize from a dictionary."""
-
         return cls(
             frontchannel=(
                 FrontChannelLogoutConfig.deserialize(data["frontchannel"])
@@ -109,7 +106,6 @@ class ClientConfig:
     @classmethod
     def deserialize(cls, data: dict) -> Self:
         """Deserialize from a dictionary."""
-
         return cls(
             callback=data["callback"],
             endpoints=(
@@ -142,6 +138,7 @@ class Client:
 
     @classmethod
     def deserialize(cls, data: dict) -> Self:
+        """Deserialize from a dictionary."""
         return cls(
             client_id=data["client_id"],
         )
@@ -162,9 +159,8 @@ class CreateClientRequest:
     scope: str | None
     token_endpoint_auth_method: str | None
 
-    def serialize(self) -> dict:
+    def serialize(self) -> dict:  # noqa: C901
         """Serialize to a dictionary."""
-
         data = {}
 
         if self.client_id is not None:
@@ -217,9 +213,8 @@ class UpdateClientRequest:
     scope: str | None
     token_endpoint_auth_method: str | None
 
-    def serialize(self) -> dict:
+    def serialize(self) -> dict:  # noqa: C901
         """Serialize to a dictionary."""
-
         data = {}
 
         if self.client_id is not None:
@@ -260,12 +255,11 @@ class UpdateClientRequest:
 class CreateClientRequestBuilder:
     """A builder for CreateClientRequest."""
 
-    def build(self, id: str, config: ClientConfig) -> CreateClientRequest:
+    def build(self, client_id: str, config: ClientConfig) -> CreateClientRequest:
         """Build the request."""
-
         return CreateClientRequest(
-            client_id=id,
-            client_name=id,
+            client_id=client_id,
+            client_name=client_id,
             client_secret=config.secret,
             frontchannel_logout_session_required=(
                 config.logout.frontchannel.session
@@ -280,7 +274,7 @@ class CreateClientRequestBuilder:
             grant_types=config.grants,
             post_logout_redirect_uris=(
                 [config.url + path for path in config.logout.redirects]
-                if config.logout
+                if config.logout and config.logout.redirects
                 else None
             ),
             redirect_uris=[config.url + config.callback],
@@ -296,12 +290,11 @@ class CreateClientRequestBuilder:
 class UpdateClientRequestBuilder:
     """A builder for UpdateClientRequest."""
 
-    def build(self, id: str, config: ClientConfig) -> UpdateClientRequest:
+    def build(self, client_id: str, config: ClientConfig) -> UpdateClientRequest:
         """Build the request."""
-
         return UpdateClientRequest(
-            client_id=id,
-            client_name=id,
+            client_id=client_id,
+            client_name=client_id,
             client_secret=config.secret,
             frontchannel_logout_session_required=(
                 config.logout.frontchannel.session
@@ -316,7 +309,7 @@ class UpdateClientRequestBuilder:
             grant_types=config.grants,
             post_logout_redirect_uris=(
                 [config.url + path for path in config.logout.redirects]
-                if config.logout
+                if config.logout and config.logout.redirects
                 else None
             ),
             redirect_uris=[config.url + config.callback],
@@ -340,7 +333,6 @@ class ArgumentsParser:
 
     def parse(self) -> Arguments:
         """Parse arguments."""
-
         args = self.parser.parse_args()
         return Arguments(config=args.config)
 
@@ -353,14 +345,13 @@ class ConfigurationLoader:
 
     def load(self) -> Configuration:
         """Load configuration."""
-
-        with open(self.config) as file:
+        with self.config.open() as file:
             data = json.load(file)
 
         return Configuration(
             clients={
-                id: ClientConfig.deserialize(config)
-                for id, config in data.get("clients", {}).items()
+                client_id: ClientConfig.deserialize(config)
+                for client_id, config in data.get("clients", {}).items()
             },
         )
 
@@ -395,20 +386,23 @@ class HTTPClient:
         body: str | None = None,
         headers: dict[str, str] | None = None,
     ) -> HTTPResponse:
+        """Make a request."""
         self.connection.request(
             method, f"{self.path}{path}", body=body, headers=headers or {}
         )
         response = self.connection.getresponse()
 
-        if response.status >= 400:
+        if response.status >= HTTPStatus.BAD_REQUEST:
             raise HTTPError(response.status, response.reason)
 
         return response
 
     def get(self, path: str) -> HTTPResponse:
+        """Make a GET request."""
         return self.request("GET", path)
 
     def post(self, path: str, body: dict) -> HTTPResponse:
+        """Make a POST request."""
         return self.request(
             "POST",
             path,
@@ -417,6 +411,7 @@ class HTTPClient:
         )
 
     def put(self, path: str, body: dict) -> HTTPResponse:
+        """Make a PUT request."""
         return self.request(
             "PUT",
             path,
@@ -425,16 +420,23 @@ class HTTPClient:
         )
 
     def delete(self, path: str) -> HTTPResponse:
+        """Make a DELETE request."""
         return self.request("DELETE", path)
 
     def close(self) -> None:
+        """Close the connection."""
         self.connection.close()
 
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, *args, **kwargs) -> None:
-        self.close()
+    def __exit__(
+        self,
+        exception_type: type[BaseException] | None,
+        exception: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        return self.close()
 
 
 class HydraClient:
@@ -445,13 +447,11 @@ class HydraClient:
 
     def ping(self) -> None:
         """Ping the service."""
-
         with HTTPClient(self.url) as http:
             http.get("/health/ready")
 
     def list_clients(self) -> list[Client]:
         """List all clients."""
-
         with HTTPClient(self.url) as http:
             response = http.get("/admin/clients")
             data = response.read()
@@ -460,21 +460,18 @@ class HydraClient:
 
     def create_client(self, request: CreateClientRequest) -> None:
         """Create a client."""
-
         with HTTPClient(self.url) as http:
             http.post("/admin/clients", body=request.serialize())
 
-    def update_client(self, id: str, request: UpdateClientRequest) -> None:
+    def update_client(self, client_id: str, request: UpdateClientRequest) -> None:
         """Update a client."""
-
         with HTTPClient(self.url) as http:
-            http.put(f"/admin/clients/{id}", body=request.serialize())
+            http.put(f"/admin/clients/{client_id}", body=request.serialize())
 
-    def delete_client(self, id: str) -> None:
+    def delete_client(self, client_id: str) -> None:
         """Delete a client."""
-
         with HTTPClient(self.url) as http:
-            http.delete(f"/admin/clients/{id}")
+            http.delete(f"/admin/clients/{client_id}")
 
 
 class HydraClientBuilder:
@@ -482,7 +479,6 @@ class HydraClientBuilder:
 
     def build(self) -> HydraClient:
         """Build the client."""
-
         host = os.getenv("SCORPION__SERVER__HOST", "localhost")
         port = os.getenv("SCORPION__SERVER__PORTS__ADMIN", "20001")
         url = f"http://{host}:{port}"
@@ -507,47 +503,46 @@ class ClientSynchronizer:
     def _list_clients(self) -> list[Client]:
         return self.hydra.list_clients()
 
-    def _delete_client(self, id: str) -> None:
+    def _delete_client(self, client_id: str) -> None:
         try:
-            self.hydra.delete_client(id)
+            self.hydra.delete_client(client_id)
         except (ConnectionError, HTTPError) as error:
             if isinstance(error, HTTPError) and error.status == HTTPStatus.NOT_FOUND:
                 return
 
-            logger.exception(f"Failed to delete client {id}.")
-            raise SynchronizationError() from error
+            logger.exception("Failed to delete client %s.", client_id)
+            raise SynchronizationError from error
 
-    def _update_client(self, id: str) -> None:
-        config = self.configs[id]
-        request = UpdateClientRequestBuilder().build(id, config)
+    def _update_client(self, client_id: str) -> None:
+        config = self.configs[client_id]
+        request = UpdateClientRequestBuilder().build(client_id, config)
 
         try:
-            self.hydra.update_client(id, request)
+            self.hydra.update_client(client_id, request)
         except (ConnectionError, HTTPError) as error:
             if isinstance(error, HTTPError) and error.status == HTTPStatus.NOT_FOUND:
-                self._create_client(id)
+                self._create_client(client_id)
                 return
 
-            logger.exception(f"Failed to update client {id}.")
-            raise SynchronizationError() from error
+            logger.exception("Failed to update client %s.", client_id)
+            raise SynchronizationError from error
 
-    def _create_client(self, id: str) -> None:
-        config = self.configs[id]
-        request = CreateClientRequestBuilder().build(id, config)
+    def _create_client(self, client_id: str) -> None:
+        config = self.configs[client_id]
+        request = CreateClientRequestBuilder().build(client_id, config)
 
         try:
             self.hydra.create_client(request)
         except (ConnectionError, HTTPError) as error:
             if isinstance(error, HTTPError) and error.status == HTTPStatus.CONFLICT:
-                self._update_client(id)
+                self._update_client(client_id)
                 return
 
-            logger.exception(f"Failed to create client {id}.")
-            raise SynchronizationError() from error
+            logger.exception("Failed to create client %s.", client_id)
+            raise SynchronizationError from error
 
     def synchronize(self) -> None:
         """Synchronize clients."""
-
         clients = self._list_clients()
 
         current = {client.client_id for client in clients}
@@ -557,17 +552,17 @@ class ClientSynchronizer:
         create = target - current
         update = current & target
 
-        for id in delete:
-            logger.info(f"Deleting client {id}...")
-            self._delete_client(id)
+        for client_id in delete:
+            logger.info("Deleting client %s...", client_id)
+            self._delete_client(client_id)
 
-        for id in update:
-            logger.info(f"Updating client {id}...")
-            self._update_client(id)
+        for client_id in update:
+            logger.info("Updating client %s...", client_id)
+            self._update_client(client_id)
 
-        for id in create:
-            logger.info(f"Creating client {id}...")
-            self._create_client(id)
+        for client_id in create:
+            logger.info("Creating client %s...", client_id)
+            self._create_client(client_id)
 
 
 class ConfigurationSynchronizer:
@@ -592,11 +587,10 @@ class ConfigurationSynchronizer:
                 return
 
         logger.error("Ory Hydra did not become ready.")
-        raise SynchronizationError()
+        raise SynchronizationError
 
     def synchronize(self) -> None:
         """Synchronize configuration."""
-
         logger.info("Synchronizing configuration...")
 
         self._wait_for_hydra()
@@ -607,6 +601,7 @@ class ConfigurationSynchronizer:
 
 
 def main() -> None:
+    """Run main entry point."""
     arguments = ArgumentsParser().parse()
     config = ConfigurationLoader(arguments.config).load()
     hydra = HydraClientBuilder().build()

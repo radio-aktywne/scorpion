@@ -5,7 +5,7 @@ title: Index
 
 # scorpion
 
-Users OIDC auth 🪪
+Users OIDC auth service 🪪
 
 ## 💡 About
 

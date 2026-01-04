@@ -27,5 +27,6 @@ __pycache__/
 /docker-compose.yaml
 /Dockerfile
 /LICENSE
+/pyproject.toml
 /README.md
 /Taskfile.dist.yaml

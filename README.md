@@ -2,7 +2,7 @@
 
 <div align="center">
 
-Users OIDC auth 🪪
+Users OIDC auth service 🪪
 
 [![Lint](https://github.com/radio-aktywne/scorpion/actions/workflows/lint.yaml/badge.svg)](https://github.com/radio-aktywne/scorpion/actions/workflows/lint.yaml)
 [![Image](https://github.com/radio-aktywne/scorpion/actions/workflows/image.yaml/badge.svg)](https://github.com/radio-aktywne/scorpion/actions/workflows/image.yaml)
