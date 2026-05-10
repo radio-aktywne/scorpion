@@ -121,6 +121,11 @@ oauth2:
   # Set this to true if you want to share error debugging information with your OAuth 2.0 clients. Keep in mind that debug information is very valuable when dealing with errors, but might also expose database error codes and similar errors.
   expose_internal_errors: {{ ( ds "config" ).debug }}
 
+  # Controls PKCE settings.
+  pkce:
+    # Set this to true if you want PKCE to be enforced for all clients.
+    enforced: true
+
   # Controls grants settings.
   grant:
     # Controls refresh token settings.
