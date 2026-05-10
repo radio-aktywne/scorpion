@@ -4,322 +4,109 @@ import logging
 import os
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, replace
 from http import HTTPStatus
 from http.client import HTTPConnection, HTTPResponse, HTTPSConnection
 from pathlib import Path
 from types import TracebackType
-from typing import Self
+from typing import Any, Literal, Self
 from urllib.parse import urlparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("configure")
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
+class BaseClientData:
+    """Base data of a client."""
+
+    access_token_strategy: Literal["jwt", "opaque"] | None = None
+    allowed_cors_origins: list[str] | None = None
+    audience: list[str] | None = None
+    authorization_code_grant_access_token_lifespan: str | None = None
+    authorization_code_grant_id_token_lifespan: str | None = None
+    authorization_code_grant_refresh_token_lifespan: str | None = None
+    backchannel_logout_session_required: bool | None = None
+    backchannel_logout_uri: str | None = None
+    client_credentials_grant_access_token_lifespan: str | None = None
+    client_name: str | None = None
+    client_uri: str | None = None
+    contacts: list[str] | None = None
+    frontchannel_logout_session_required: bool | None = None
+    frontchannel_logout_uri: str | None = None
+    grant_types: list[str] | None = None
+    implicit_grant_access_token_lifespan: str | None = None
+    implicit_grant_id_token_lifespan: str | None = None
+    jwks: dict | None = None
+    jwks_uri: str | None = None
+    jwt_bearer_grant_access_token_lifespan: str | None = None
+    logo_uri: str | None = None
+    metadata: dict | None = None
+    owner: str | None = None
+    policy_uri: str | None = None
+    post_logout_redirect_uris: list[str] | None = None
+    redirect_uris: list[str] | None = None
+    refresh_token_grant_access_token_lifespan: str | None = None
+    refresh_token_grant_id_token_lifespan: str | None = None
+    refresh_token_grant_refresh_token_lifespan: str | None = None
+    registration_access_token: str | None = None
+    registration_client_uri: str | None = None
+    request_object_signing_alg: str | None = None
+    request_uris: list[str] | None = None
+    response_types: list[str] | None = None
+    scope: str | None = None
+    sector_identifier_uri: str | None = None
+    skip_consent: bool | None = None
+    skip_logout_consent: bool | None = None
+    subject_type: Literal["pairwise", "public"] | None = None
+    token_endpoint_auth_method: (
+        Literal["client_secret_basic", "client_secret_post", "none", "private_key_jwt"]
+        | None
+    ) = None
+    token_endpoint_auth_signing_alg: str | None = None
+    tos_uri: str | None = None
+    userinfo_signed_response_alg: str | None = None
+
+    def serialize(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
+        return {key: value for key, value in asdict(self).items() if value is not None}
+
+    @classmethod
+    def deserialize(cls, data: dict[str, Any]) -> Self:
+        """Deserialize from a dictionary."""
+        return cls(**data)
+
+
+@dataclass(frozen=True, kw_only=True)
+class Client(BaseClientData):
+    """Data of a client."""
+
+    client_id: str
+    client_secret_expires_at: int
+    created_at: str
+    updated_at: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClientRequest(BaseClientData):
+    """Data of a request to create or update a client."""
+
+    client_id: str | None = None
+    client_secret: str | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
 class Arguments:
     """Command-line arguments."""
 
     config: Path
 
 
-@dataclass
-class TokenEndpointConfig:
-    """Configuration for a token endpoint."""
-
-    auth: str | None
-
-    @classmethod
-    def deserialize(cls, data: dict) -> Self:
-        """Deserialize from a dictionary."""
-        return cls(
-            auth=data.get("auth"),
-        )
-
-
-@dataclass
-class EndpointsConfig:
-    """Configuration for scorpion endpoints."""
-
-    token: TokenEndpointConfig | None
-
-    @classmethod
-    def deserialize(cls, data: dict) -> Self:
-        """Deserialize from a dictionary."""
-        return cls(
-            token=(
-                TokenEndpointConfig.deserialize(data["token"])
-                if "token" in data
-                else None
-            ),
-        )
-
-
-@dataclass
-class FrontChannelLogoutConfig:
-    """Configuration for front-channel logout."""
-
-    path: str
-    session: bool | None
-
-    @classmethod
-    def deserialize(cls, data: dict) -> Self:
-        """Deserialize from a dictionary."""
-        return cls(
-            path=data["path"],
-            session=data.get("session"),
-        )
-
-
-@dataclass
-class LogoutConfig:
-    """Configuration for logout."""
-
-    frontchannel: FrontChannelLogoutConfig | None
-    redirects: list[str] | None
-
-    @classmethod
-    def deserialize(cls, data: dict) -> Self:
-        """Deserialize from a dictionary."""
-        return cls(
-            frontchannel=(
-                FrontChannelLogoutConfig.deserialize(data["frontchannel"])
-                if "frontchannel" in data
-                else None
-            ),
-            redirects=data.get("redirects"),
-        )
-
-
-@dataclass
-class ClientConfig:
-    """Configuration for a scorpion client."""
-
-    callback: str
-    endpoints: EndpointsConfig | None
-    grants: list[str] | None
-    logout: LogoutConfig | None
-    scopes: list[str] | None
-    secret: str
-    url: str
-
-    @classmethod
-    def deserialize(cls, data: dict) -> Self:
-        """Deserialize from a dictionary."""
-        return cls(
-            callback=data["callback"],
-            endpoints=(
-                EndpointsConfig.deserialize(data["endpoints"])
-                if "endpoints" in data
-                else None
-            ),
-            grants=data.get("grants"),
-            logout=(
-                LogoutConfig.deserialize(data["logout"]) if "logout" in data else None
-            ),
-            scopes=data.get("scopes"),
-            secret=data["secret"],
-            url=data["url"],
-        )
-
-
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class Configuration:
     """Configuration data."""
 
-    clients: dict[str, ClientConfig]
-
-
-@dataclass
-class Client:
-    """An Ory Hydra client."""
-
-    client_id: str
-
-    @classmethod
-    def deserialize(cls, data: dict) -> Self:
-        """Deserialize from a dictionary."""
-        return cls(
-            client_id=data["client_id"],
-        )
-
-
-@dataclass
-class CreateClientRequest:
-    """Request to create an Ory Hydra client."""
-
-    client_id: str | None
-    client_name: str | None
-    client_secret: str | None
-    frontchannel_logout_session_required: bool | None
-    frontchannel_logout_uri: str | None
-    grant_types: list[str] | None
-    post_logout_redirect_uris: list[str] | None
-    redirect_uris: list[str] | None
-    scope: str | None
-    token_endpoint_auth_method: str | None
-
-    def serialize(self) -> dict:  # noqa: C901
-        """Serialize to a dictionary."""
-        data = {}
-
-        if self.client_id is not None:
-            data["client_id"] = self.client_id
-
-        if self.client_name is not None:
-            data["client_name"] = self.client_name
-
-        if self.client_secret is not None:
-            data["client_secret"] = self.client_secret
-
-        if self.frontchannel_logout_session_required is not None:
-            data["frontchannel_logout_session_required"] = (
-                self.frontchannel_logout_session_required
-            )
-
-        if self.frontchannel_logout_uri is not None:
-            data["frontchannel_logout_uri"] = self.frontchannel_logout_uri
-
-        if self.grant_types is not None:
-            data["grant_types"] = self.grant_types
-
-        if self.post_logout_redirect_uris is not None:
-            data["post_logout_redirect_uris"] = self.post_logout_redirect_uris
-
-        if self.redirect_uris is not None:
-            data["redirect_uris"] = self.redirect_uris
-
-        if self.scope is not None:
-            data["scope"] = self.scope
-
-        if self.token_endpoint_auth_method is not None:
-            data["token_endpoint_auth_method"] = self.token_endpoint_auth_method
-
-        return data
-
-
-@dataclass
-class UpdateClientRequest:
-    """Request to update an Ory Hydra client."""
-
-    client_id: str | None
-    client_name: str | None
-    client_secret: str | None
-    frontchannel_logout_session_required: bool | None
-    frontchannel_logout_uri: str | None
-    grant_types: list[str] | None
-    post_logout_redirect_uris: list[str] | None
-    redirect_uris: list[str] | None
-    scope: str | None
-    token_endpoint_auth_method: str | None
-
-    def serialize(self) -> dict:  # noqa: C901
-        """Serialize to a dictionary."""
-        data = {}
-
-        if self.client_id is not None:
-            data["client_id"] = self.client_id
-
-        if self.client_name is not None:
-            data["client_name"] = self.client_name
-
-        if self.client_secret is not None:
-            data["client_secret"] = self.client_secret
-
-        if self.frontchannel_logout_session_required is not None:
-            data["frontchannel_logout_session_required"] = (
-                self.frontchannel_logout_session_required
-            )
-
-        if self.frontchannel_logout_uri is not None:
-            data["frontchannel_logout_uri"] = self.frontchannel_logout_uri
-
-        if self.grant_types is not None:
-            data["grant_types"] = self.grant_types
-
-        if self.post_logout_redirect_uris is not None:
-            data["post_logout_redirect_uris"] = self.post_logout_redirect_uris
-
-        if self.redirect_uris is not None:
-            data["redirect_uris"] = self.redirect_uris
-
-        if self.scope is not None:
-            data["scope"] = self.scope
-
-        if self.token_endpoint_auth_method is not None:
-            data["token_endpoint_auth_method"] = self.token_endpoint_auth_method
-
-        return data
-
-
-class CreateClientRequestBuilder:
-    """A builder for CreateClientRequest."""
-
-    def build(self, client_id: str, config: ClientConfig) -> CreateClientRequest:
-        """Build the request."""
-        return CreateClientRequest(
-            client_id=client_id,
-            client_name=client_id,
-            client_secret=config.secret,
-            frontchannel_logout_session_required=(
-                config.logout.frontchannel.session
-                if config.logout and config.logout.frontchannel
-                else None
-            ),
-            frontchannel_logout_uri=(
-                config.url + config.logout.frontchannel.path
-                if config.logout and config.logout.frontchannel
-                else None
-            ),
-            grant_types=config.grants,
-            post_logout_redirect_uris=(
-                [config.url + path for path in config.logout.redirects]
-                if config.logout and config.logout.redirects
-                else None
-            ),
-            redirect_uris=[config.url + config.callback],
-            scope=" ".join(config.scopes) if config.scopes else None,
-            token_endpoint_auth_method=(
-                config.endpoints.token.auth
-                if config.endpoints and config.endpoints.token
-                else None
-            ),
-        )
-
-
-class UpdateClientRequestBuilder:
-    """A builder for UpdateClientRequest."""
-
-    def build(self, client_id: str, config: ClientConfig) -> UpdateClientRequest:
-        """Build the request."""
-        return UpdateClientRequest(
-            client_id=client_id,
-            client_name=client_id,
-            client_secret=config.secret,
-            frontchannel_logout_session_required=(
-                config.logout.frontchannel.session
-                if config.logout and config.logout.frontchannel
-                else None
-            ),
-            frontchannel_logout_uri=(
-                config.url + config.logout.frontchannel.path
-                if config.logout and config.logout.frontchannel
-                else None
-            ),
-            grant_types=config.grants,
-            post_logout_redirect_uris=(
-                [config.url + path for path in config.logout.redirects]
-                if config.logout and config.logout.redirects
-                else None
-            ),
-            redirect_uris=[config.url + config.callback],
-            scope=" ".join(config.scopes) if config.scopes else None,
-            token_endpoint_auth_method=(
-                config.endpoints.token.auth
-                if config.endpoints and config.endpoints.token
-                else None
-            ),
-        )
+    clients: dict[str, ClientRequest]
 
 
 class ArgumentsParser:
@@ -350,7 +137,7 @@ class ConfigurationLoader:
 
         return Configuration(
             clients={
-                client_id: ClientConfig.deserialize(config)
+                client_id: ClientRequest.deserialize(config)
                 for client_id, config in data.get("clients", {}).items()
             },
         )
@@ -458,20 +245,15 @@ class HydraClient:
 
         return [Client.deserialize(client) for client in json.loads(data)]
 
-    def create_client(self, request: CreateClientRequest) -> None:
+    def create_client(self, request: ClientRequest) -> None:
         """Create a client."""
         with HTTPClient(self.url) as http:
             http.post("/admin/clients", body=request.serialize())
 
-    def update_client(self, client_id: str, request: UpdateClientRequest) -> None:
+    def update_client(self, client_id: str, request: ClientRequest) -> None:
         """Update a client."""
         with HTTPClient(self.url) as http:
             http.put(f"/admin/clients/{client_id}", body=request.serialize())
-
-    def delete_client(self, client_id: str) -> None:
-        """Delete a client."""
-        with HTTPClient(self.url) as http:
-            http.delete(f"/admin/clients/{client_id}")
 
 
 class HydraClientBuilder:
@@ -496,26 +278,16 @@ class SynchronizationError(Exception):
 class ClientSynchronizer:
     """A synchronizer for Ory Hydra clients."""
 
-    def __init__(self, hydra: HydraClient, configs: dict[str, ClientConfig]) -> None:
+    def __init__(self, hydra: HydraClient, configs: dict[str, ClientRequest]) -> None:
         self.hydra = hydra
         self.configs = configs
 
     def _list_clients(self) -> list[Client]:
         return self.hydra.list_clients()
 
-    def _delete_client(self, client_id: str) -> None:
-        try:
-            self.hydra.delete_client(client_id)
-        except (ConnectionError, HTTPError) as error:
-            if isinstance(error, HTTPError) and error.status == HTTPStatus.NOT_FOUND:
-                return
-
-            logger.exception("Failed to delete client %s.", client_id)
-            raise SynchronizationError from error
-
     def _update_client(self, client_id: str) -> None:
         config = self.configs[client_id]
-        request = UpdateClientRequestBuilder().build(client_id, config)
+        request = replace(config, client_id=config.client_id or client_id)
 
         try:
             self.hydra.update_client(client_id, request)
@@ -529,7 +301,7 @@ class ClientSynchronizer:
 
     def _create_client(self, client_id: str) -> None:
         config = self.configs[client_id]
-        request = CreateClientRequestBuilder().build(client_id, config)
+        request = replace(config, client_id=config.client_id or client_id)
 
         try:
             self.hydra.create_client(request)
@@ -548,13 +320,8 @@ class ClientSynchronizer:
         current = {client.client_id for client in clients}
         target = set(self.configs.keys())
 
-        delete = current - target
         create = target - current
         update = current & target
-
-        for client_id in delete:
-            logger.info("Deleting client %s...", client_id)
-            self._delete_client(client_id)
 
         for client_id in update:
             logger.info("Updating client %s...", client_id)

@@ -1,346 +1,40 @@
-# Configuration for the clients
+# Configuration for clients
 clients:
-  # Configuration for the aster client
-  aster:
-    # Callback path
-    callback: /api/auth/callback/scorpion
+{{ env.Getenv "SCORPION__CLIENTS" "{}" | data.JSON | data.ToYAML | strings.TrimSpace | strings.Indent 2 }}
 
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__ASTER__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__ASTER__URL" "http://localhost:10110" | strings.Quote }}
-
-  # Configuration for the daisy client
-  daisy:
-    # Callback path
-    callback: /api/auth/callback/scorpion
-
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__DAISY__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__DAISY__URL" "http://localhost:10810" | strings.Quote }}
-
-  # Configuration for the jasmine client
-  jasmine:
-    # Callback path
-    callback: /api/auth/callback/scorpion
-
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__JASMINE__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__JASMINE__URL" "http://localhost:10620" | strings.Quote }}
-
-  # Configuration for the lotus client
-  lotus:
-    # Callback path
-    callback: /api/auth/callback/scorpion
-
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__LOTUS__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__LOTUS__URL" "http://localhost:10230" | strings.Quote }}
-
-  # Configuration for the magnolia client
-  magnolia:
-    # Callback path
-    callback: /api/auth/callback/scorpion
-
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__MAGNOLIA__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__MAGNOLIA__URL" "http://localhost:10720" | strings.Quote }}
-
-  # Configuration for the poppy client
-  poppy:
-    # Callback path
-    callback: /api/auth/callback/scorpion
-
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__POPPY__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__POPPY__URL" "http://localhost:10410" | strings.Quote }}
-
-  # Configuration for the tulip client
-  tulip:
-    # Callback path
-    callback: /api/auth/callback/scorpion
-
-    # Configuration for scorpion endpoints
-    endpoints:
-      # Configuration for token endpoint
-      token:
-        # Authentication method
-        auth: client_secret_basic
-
-    # Supported grant types
-    grants:
-      - authorization_code
-      - refresh_token
-
-    # Configuration for logout
-    logout:
-      # Configuration for front-channel logout
-      frontchannel:
-        # Path of the front-channel logout endpoint
-        path: /auth/logout/frontchannel
-
-        # Whether to pass iss and sid parameters
-        session: true
-
-      # Allowed redirect paths after logout
-      redirects:
-        - ""
-
-    # Supported scopes
-    scopes:
-      - email
-      - offline_access
-      - openid
-      - profile
-
-    # Secret of the client
-    secret: {{ env.Getenv "SCORPION__CLIENTS__TULIP__SECRET" "secret" | strings.Quote }}
-
-    # Public URL
-    url: {{ env.Getenv "SCORPION__CLIENTS__TULIP__URL" "http://localhost:10530" | strings.Quote }}
-
-# Configuration for the crocus app
+# Configuration for crocus app
 crocus:
-  # Configuration for the public site of the crocus app
+  # Configuration for public site of crocus app
   public:
-    # Host of the public site
+    # Host of public site
     host: {{ env.Getenv "SCORPION__CROCUS__PUBLIC__HOST" "localhost" | strings.Quote }}
 
-    # Path of the public site
+    # Path of public site
     path: {{ env.Getenv "SCORPION__CROCUS__PUBLIC__PATH" | strings.Quote | strings.TrimPrefix `""` | default "null" }}
 
-    # Port of the public site
+    # Port of public site
     port: {{ env.Getenv "SCORPION__CROCUS__PUBLIC__PORT" "20020" | default "null" }}
 
-    # Scheme of the public site
+    # Scheme of public site
     scheme: {{ env.Getenv "SCORPION__CROCUS__PUBLIC__SCHEME" "http" | strings.Quote }}
 
 # Enable debug mode
 debug: {{ env.Getenv "SCORPION__DEBUG" "true" | conv.ToBool }}
 
-# Configuration for the diamond database
+# Configuration for diamond database
 diamond:
-  # Configuration for the SQL API of the diamond database
+  # Configuration for SQL API of diamond database
   sql:
-    # Host of the SQL API
+    # Host of SQL API
     host: {{ env.Getenv "SCORPION__DIAMOND__SQL__HOST" "localhost" | strings.Quote }}
 
-    # Password to authenticate with the SQL API
+    # Password to authenticate with SQL API
     password: {{ env.Getenv "SCORPION__DIAMOND__SQL__PASSWORD" "password" | strings.Quote }}
 
-    # Port of the SQL API
+    # Port of SQL API
     port: {{ env.Getenv "SCORPION__DIAMOND__SQL__PORT" "20010" | conv.ToInt }}
 
-# Configuration for the secrets
+# Configuration for secrets
 secrets:
   # Cookie secrets
   cookie:
@@ -354,7 +48,7 @@ secrets:
     - {{ . | strings.Quote }}
     {{- end }}
 
-# Configuration for the server
+# Configuration for server
 server:
   # Host to run the server on
   host: {{ env.Getenv "SCORPION__SERVER__HOST" "0.0.0.0" | strings.Quote }}
@@ -367,7 +61,7 @@ server:
     # Port for public traffic
     public: {{ env.Getenv "SCORPION__SERVER__PORTS__PUBLIC" "20000" | conv.ToInt }}
 
-# Configuration for the URLs
+# Configuration for URLs
 urls:
   # Admin URL
   admin: {{ env.Getenv "SCORPION__URLS__ADMIN" "http://localhost:20001" | strings.Quote }}
