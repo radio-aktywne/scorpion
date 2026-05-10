@@ -100,6 +100,14 @@ urls:
   # When a user agent requests to logout, it will be redirected to this url afterwards per default.
   post_logout_redirect: "{{ template "crocus.public.url" . }}/default"
 
+# Configures time to live.
+ttl:
+  # Configures how long access tokens are valid.
+  access_token: {{ ( ds "config" ).lifetimes.tokens.access | strings.Quote }}
+
+  # Configures how long refresh tokens are valid. Set to -1 for refresh tokens to never expire.
+  refresh_token: {{ ( ds "config" ).lifetimes.tokens.refresh | strings.Quote }}
+
 # Controls OAuth 2.0 settings.
 oauth2:
   # Set this to true if you want to share error debugging information with your OAuth 2.0 clients. Keep in mind that debug information is very valuable when dealing with errors, but might also expose database error codes and similar errors.

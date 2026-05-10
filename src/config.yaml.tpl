@@ -34,6 +34,16 @@ diamond:
     # Port of SQL API
     port: {{ env.Getenv "SCORPION__DIAMOND__SQL__PORT" "20010" | conv.ToInt }}
 
+# Configuration for lifetimes
+lifetimes:
+  # Configuration for token lifetimes
+  tokens:
+    # Access token lifetime
+    access: {{ env.Getenv "SCORPION__LIFETIMES__TOKENS__ACCESS" "1h" | strings.Quote }}
+
+    # Refresh token lifetime
+    refresh: {{ env.Getenv "SCORPION__LIFETIMES__TOKENS__REFRESH" "720h" | strings.Quote }}
+
 # Configuration for secrets
 secrets:
   # Cookie secrets

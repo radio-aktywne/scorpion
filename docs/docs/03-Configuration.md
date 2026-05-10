@@ -34,6 +34,12 @@ You can configure the service at runtime using various environment variables:
 - `SCORPION__DIAMOND__SQL__PORT` -
   port of the SQL API of the diamond database
   (default: `20010`)
+- `SCORPION__LIFETIMES__TOKENS__ACCESS` -
+  access token lifetime
+  (default: `1h`)
+- `SCORPION__LIFETIMES__TOKENS__REFRESH` -
+  refresh token lifetime
+  (default: `720h`)
 - `SCORPION__SECRETS__COOKIE` -
   cookie secrets
   (default: `secretsecretsecret`)
