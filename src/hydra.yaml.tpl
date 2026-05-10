@@ -23,6 +23,14 @@ serve:
     # The interface or unix socket Ory Hydra should listen and handle public API requests on. Use the prefix `unix:` to specify a path to a unix socket. Leave empty to listen on all interfaces.
     host: {{ ( ds "config" ).server.host | strings.Quote }}
 
+    # Configures Cross Origin Resource Sharing for public endpoints.
+    cors:
+      # Set enabled to true to enable CORS.
+      enabled: true
+
+      # If set to true, adds additional log output to debug server side CORS issues.
+      debug: {{ ( ds "config" ).debug }}
+
   # Controls the admin daemon serving administrative endpoints.
   admin:
     # The port to listen on.
@@ -111,7 +119,7 @@ ttl:
 # Controls OAuth 2.0 settings.
 oauth2:
   # Set this to true if you want to share error debugging information with your OAuth 2.0 clients. Keep in mind that debug information is very valuable when dealing with errors, but might also expose database error codes and similar errors.
-  expose_internal_errors: true
+  expose_internal_errors: {{ ( ds "config" ).debug }}
 
   # Controls grants settings.
   grant:
