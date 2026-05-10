@@ -44,6 +44,16 @@ startmigrations() {
 	hydra migrate sql up --yes --config "${1}" "${dsn}" &
 }
 
+# Function to start janitor
+startjanitor() {
+	dsn="$(yq eval '.dsn' "${2}")"
+	retention="$(yq eval '.janitor.retention' "${1}")"
+
+	echo "Running janitor..."
+
+	hydra janitor --grants --requests --tokens --keep-if-younger "${retention}" --config "${2}" "${dsn}" &
+}
+
 # Function to start Ory Hydra
 starthydra() {
 	debug="$(yq eval '.debug' "${1}")"
@@ -101,6 +111,19 @@ pid=$!
 handlesignals "${pid}"
 
 # Wait for migrations to complete
+wait "${pid}"
+
+# Temporarily ignore signals
+ignoresignals
+
+# Run janitor
+startjanitor "${tmpconfig}" "${tmphydraconfig}"
+
+# Setup signal handling
+pid=$!
+handlesignals "${pid}"
+
+# Wait for janitor to complete
 wait "${pid}"
 
 # Temporarily ignore signals
