@@ -34,6 +34,11 @@ diamond:
     # Port of SQL API
     port: {{ env.Getenv "SCORPION__DIAMOND__SQL__PORT" "20010" | conv.ToInt }}
 
+# Configuration for janitor
+janitor:
+  # Retention period
+  retention: {{ env.Getenv "SCORPION__JANITOR__RETENTION" "720h" | strings.Quote }}
+
 # Configuration for lifetimes
 lifetimes:
   # Configuration for token lifetimes
