@@ -48,13 +48,13 @@ serve:
     # Sets the session cookie name. Use with care!
     names:
       # CSRF Cookie Name
-      login_csrf: scorpion-login-csrf
+      login_csrf: __Http-scorpion-login-csrf
 
       # CSRF Cookie Name
-      consent_csrf: scorpion-consent-csrf
+      consent_csrf: __Http-scorpion-consent-csrf
 
       # Session Cookie Name
-      session: scorpion-session
+      session: __Http-scorpion-session
 
 # Sets the data source name. This configures the backend where Ory Hydra persists data. If dsn is `memory`, data will be written to memory and is lost when you restart this instance. Ory Hydra supports popular SQL databases. For more detailed configuration information go to: https://www.ory.sh/docs/hydra/dependencies-environment#sql
 dsn: {{ template "diamond.sql.url" . | strings.Quote }}
