@@ -17,26 +17,26 @@ postgres://user:{{ print $password }}@{{ print $host }}:{{ print $port }}/databa
 serve:
   # Controls the public daemon serving public API endpoints like /oauth2/auth, /oauth2/token, /.well-known/jwks.json.
   public:
-    # The port to listen on.
+    # The port that the endpoint listens on.
     port: {{ ( ds "config" ).server.ports.public | conv.ToInt }}
 
-    # The interface or unix socket Ory Hydra should listen and handle public API requests on. Use the prefix `unix:` to specify a path to a unix socket. Leave empty to listen on all interfaces.
+    # The host (interface) that the endpoint listens on.
     host: {{ ( ds "config" ).server.host | strings.Quote }}
 
-    # Configures Cross Origin Resource Sharing for public endpoints.
+    # Configures Cross Origin Resource Sharing for this endpoint.
     cors:
       # Set enabled to true to enable CORS.
       enabled: true
 
-      # If set to true, adds additional log output to debug server side CORS issues.
+      # Adds additional log output to debug CORS issues.
       debug: {{ ( ds "config" ).debug }}
 
   # Controls the admin daemon serving administrative endpoints.
   admin:
-    # The port to listen on.
+    # The port that the endpoint listens on.
     port: {{ ( ds "config" ).server.ports.admin | conv.ToInt }}
 
-    # The interface or unix socket Ory Hydra should listen and handle administrative API requests on. Use the prefix `unix:` to specify a path to a unix socket. Leave empty to listen on all interfaces.
+    # The host (interface) that the endpoint listens on.
     host: {{ ( ds "config" ).server.host | strings.Quote }}
 
   # Controls cookies settings.
@@ -44,19 +44,19 @@ serve:
     # Specify the SameSite mode that cookies should be sent with.
     same_site_mode: Lax
 
-    # Cookie Names
+    # Cookie Names.
     # Sets the session cookie name. Use with care!
     names:
-      # CSRF Cookie Name
+      # CSRF Cookie Name.
       login_csrf: {{ if not ( ds "config" ).debug }}__Host-Http-{{ end }}scorpion-login-csrf
 
-      # CSRF Cookie Name
+      # CSRF Cookie Name.
       consent_csrf: {{ if not ( ds "config" ).debug }}__Host-Http-{{ end }}scorpion-consent-csrf
 
-      # Session Cookie Name
+      # Session Cookie Name.
       session: {{ if not ( ds "config" ).debug }}__Host-Http-{{ end }}scorpion-session
 
-# Sets the data source name. This configures the backend where Ory Hydra persists data. If dsn is `memory`, data will be written to memory and is lost when you restart this instance. Ory Hydra supports popular SQL databases. For more detailed configuration information go to: https://www.ory.sh/docs/hydra/dependencies-environment#sql
+# Sets the data source name. This configures the backend where Ory Hydra persists data. If dsn is `memory`, data will be written to memory and is lost when you restart this instance. Ory Hydra supports popular SQL databases. For more detailed configuration information go to: https://www.ory.sh/docs/hydra/dependencies-environment#sql.
 dsn: {{ template "diamond.sql.url" . | strings.Quote }}
 
 # Configures ./well-known/ settings.
@@ -96,7 +96,7 @@ urls:
   # Sets the OAuth2 Login Endpoint URL of the OAuth2 User Login & Consent flow. Defaults to an internal fallback URL showing an error.
   login: "{{ template "crocus.public.url" . }}/login"
 
-  # Sets the OAuth2 Login Endpoint URL of the OAuth2 User Login & Consent flow. Defaults to an internal fallback URL showing an error.
+  # Sets the consent endpoint of the User Login & Consent flow. Defaults to an internal fallback URL showing an error.
   consent: "{{ template "crocus.public.url" . }}/consent"
 
   # Sets the logout endpoint. Defaults to an internal fallback URL showing an error.
@@ -110,10 +110,10 @@ urls:
 
 # Configures time to live.
 ttl:
-  # Configures how long access tokens are valid.
+  # Configures how long access tokens are valid. The larger this value is, the more database storage is needed.
   access_token: {{ ( ds "config" ).lifetimes.tokens.access | strings.Quote }}
 
-  # Configures how long refresh tokens are valid. Set to -1 for refresh tokens to never expire.
+  # Configures how long refresh tokens are valid. The larger this value is, the more database storage is needed. Set to -1 for refresh tokens to never expire, which is not recommended as the database can not be cleaned from stale tokens.
   refresh_token: {{ ( ds "config" ).lifetimes.tokens.refresh | strings.Quote }}
 
 # Controls OAuth 2.0 settings.
@@ -123,17 +123,18 @@ oauth2:
 
   # Controls PKCE settings.
   pkce:
-    # Set this to true if you want PKCE to be enforced for all clients.
+    # Sets whether PKCE should be enforced for all clients.
     enforced: true
 
   # Controls grants settings.
   grant:
     # Controls refresh token settings.
     refresh_token:
-      # Configures how long a Refresh Token remains valid after it has been used. The maximum value is 5 minutes.
+      # Refresh Token Rotation Grace Period.
+      # Configures how long a Refresh Token remains valid after it has been used. The maximum value is 5 minutes, unless also a reuse count is configured, in which case the maximum is 180 days.
       rotation_grace_period: 1m
 
-# The secrets section configures secrets used for encryption and signing of several systems. All secrets can be rotated, for more information on this topic go to: https://www.ory.sh/docs/hydra/advanced#rotation-of-hmac-token-signing-and-database-and-cookie-encryption-keys
+# The secrets section configures secrets used for encryption and signing of several systems. All secrets can be rotated, for more information on this topic go to: https://www.ory.sh/docs/hydra/advanced#rotation-of-hmac-token-signing-and-database-and-cookie-encryption-keys.
 secrets:
   # The system secret must be at least 16 characters long. If none is provided, one will be generated. They key is used to encrypt sensitive data using AES-GCM (256 bit) and validate HMAC signatures. The first item in the list is used for signing and encryption. The whole list is used for verifying signatures and decryption.
   system:
@@ -141,11 +142,18 @@ secrets:
     - {{ . | strings.Quote }}
     {{- end }}
 
-  # A secret that is used to encrypt cookie sessions. Defaults to secrets.system. It is recommended to use a separate secret in production. The first item in the list is used for signing and encryption. The whole list is used for verifying signatures and decryption.
+  # Secrets that are used for cookie session encryption. Defaults to secrets.system. It is recommended to use a separate secret in production. The first item in the list is used for signing and encryption. The whole list is used for verifying signatures and decryption.
   cookie:
     {{- range ( ds "config" ).secrets.cookie }}
     - {{ . | strings.Quote }}
     {{- end }}
 
+  # Secrets that are used for pagination token encryption. Defaults to secrets.system. It is recommended to use a separate secret in production. The first item in the list is used for signing and encryption. The whole list is used for verifying signatures and decryption.
+  pagination:
+    {{- range ( ds "config" ).secrets.pagination }}
+    - {{ . | strings.Quote }}
+    {{- end }}
+
 # The Hydra version this config is written for.
-version: v2.3.0
+# SemVer according to https://semver.org/ prefixed with `v` as in our releases.
+version: v26.2.0

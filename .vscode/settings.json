@@ -1,6 +1,5 @@
 {
   "python.analysis.diagnosticMode": "workspace",
-  "python.analysis.diagnosticsSource": "Pyright",
-  "python.analysis.pyrightVersion": "1.1.407",
-  "python.terminal.activateEnvironment": false
+  "python.analysis.diagnosticsSource": "Pylance + Pyright",
+  "python.analysis.pyrightVersion": "1.1.414"
 }

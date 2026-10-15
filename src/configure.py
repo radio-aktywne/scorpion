@@ -12,6 +12,7 @@ from types import TracebackType
 from typing import Any, Literal, Self
 from urllib.parse import urlparse
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("configure")
 
@@ -32,6 +33,9 @@ class BaseClientData:
     client_name: str | None = None
     client_uri: str | None = None
     contacts: list[str] | None = None
+    device_authorization_grant_access_token_lifespan: str | None = None
+    device_authorization_grant_id_token_lifespan: str | None = None
+    device_authorization_grant_refresh_token_lifespan: str | None = None
     frontchannel_logout_session_required: bool | None = None
     frontchannel_logout_uri: str | None = None
     grant_types: list[str] | None = None
@@ -345,7 +349,7 @@ class ConfigurationSynchronizer:
         for _ in range(10):
             try:
                 self.hydra.ping()
-            except (ConnectionError, HTTPError):
+            except ConnectionError, HTTPError:
                 logger.info("Ory Hydra is not ready. Retrying in 1 second...")
                 time.sleep(1)
             else:
