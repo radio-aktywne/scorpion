@@ -46,11 +46,11 @@ You can configure the service at runtime using various environment variables:
 - `SCORPION__SECRETS__COOKIE` -
   cookie secrets
   (default: `XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
-- `SCORPION__SECRETS__SYSTEM` -
-  system secrets
-  (default: `XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
 - `SCORPION__SECRETS__PAGINATION` -
   pagination secrets
+  (default: `XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
+- `SCORPION__SECRETS__SYSTEM` -
+  system secrets
   (default: `XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`)
 - `SCORPION__SERVER__HOST` -
   host to run the server on

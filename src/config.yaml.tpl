@@ -57,15 +57,15 @@ secrets:
     - {{ . | strings.Quote }}
     {{- end }}
 
-  # System secrets
-  system:
-    {{- range ( env.Getenv "SCORPION__SECRETS__SYSTEM" "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" | strings.Split "," ) }}
-    - {{ . | strings.Quote }}
-    {{- end }}
-
   # Pagination secrets
   pagination:
     {{- range ( env.Getenv "SCORPION__SECRETS__PAGINATION" "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" | strings.Split "," ) }}
+    - {{ . | strings.Quote }}
+    {{- end }}
+
+  # System secrets
+  system:
+    {{- range ( env.Getenv "SCORPION__SECRETS__SYSTEM" "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" | strings.Split "," ) }}
     - {{ . | strings.Quote }}
     {{- end }}
 
