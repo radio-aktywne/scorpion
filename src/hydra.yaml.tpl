@@ -106,7 +106,7 @@ urls:
   error: "{{ template "crocus.public.url" . }}/error"
 
   # When a user agent requests to logout, it will be redirected to this url afterwards per default.
-  post_logout_redirect: "{{ template "crocus.public.url" . }}/default"
+  post_logout_redirect: "{{ template "crocus.public.url" . }}/logout/callback"
 
 # Configures time to live.
 ttl:
